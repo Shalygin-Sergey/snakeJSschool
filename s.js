@@ -11,7 +11,7 @@ const config = {
 
 	/* step, maxstep чтобы пропускать игровой цикл */
 	step: 0, // шаг
-	maxStep: 6, // максимальная скорость
+	maxStep: 4, // максимальная скорость
 
 	/* sizeCEll размер одной ячейки, а sizeBerry ягода которую будет кушать змейка */
 	sizeCell: 16, // размер ячейки
@@ -99,7 +99,7 @@ function drawSnake() {
 	snake.x += snake.dx;
 	snake.y += snake.dy;
 
-	// collisionBorder();
+	collisionBorder();
 
 	// добавляем в массив объект с координатами
 	snake.tails.unshift( { x: snake.x, y: snake.y } );
@@ -119,23 +119,23 @@ function drawSnake() {
 		}
 		context.fillRect( el.x, el.y, config.sizeCell, config.sizeCell );
 
-		// /* проверяем координаты ягоды и змейки, если совпадают то увеличиваем хвост */
-		// if ( el.x === berry.x && el.y === berry.y ) {
-		// 	snake.maxTails++; /* увеличиваем хваост на 1 */
-		// 	incScore(); /* увеличиваем очки */
-		// 	randomPositionBerry(); /* создаем новую ягоду */
-		// }
-		// /* нужно проверить змейку с хвостом ЕСЛИ совпало то заного запускаем игру */
-		// for( let i = index + 1; i < snake.tails.length; i++ ) {
-		// 	/* если координаты совпали то запускаем заного */
-		// 	if ( el.x == snake.tails[i].x && el.y == snake.tails[i].y ) {
-		// 		/* функция перезапуска игры */
-		// 		refreshGame();
-		// 	}
-
-		// }
+		/* проверяем координаты ягоды и змейки, если совпадают то увеличиваем хвост */
+		if ( el.x === berry.x && el.y === berry.y ) {
+			snake.maxTails++; /* увеличиваем хваост на 1 */
+			incScore(); /* увеличиваем очки */
+			randomPositionBerry(); /* создаем новую ягоду */
+		}
+		/* нужно проверить змейку с хвостом ЕСЛИ совпало то заного запускаем игру */
+		for( let i = index + 1; i < snake.tails.length; i++ ) {
+			/* если координаты совпали то запускаем заного */
+			if ( el.x == snake.tails[i].x && el.y == snake.tails[i].y ) {
+				/* функция перезапуска игры */
+				refreshGame();
+			}
+		}
 
 	} );
+	
 }
 
 /* 5. рисование ягоды, описание после колиз */
@@ -147,3 +147,75 @@ function drawBerry() {
 	context.arc( berry.x + (config.sizeCell / 2 ), berry.y + (config.sizeCell / 2 ), config.sizeBerry, 0, 2 * Math.PI );
 	context.fill();
 }
+
+
+/*  для назначения координа для этой ягоды */
+function randomPositionBerry() {
+	/*В рандом передаем 0 и кол-во ячеек получаем засчет деления ширины канваса 
+	на размер ячейки и полученый результат умножить на размер ячейки */
+	berry.x = getRandomInt( 0, canvas.width / config.sizeCell ) * config.sizeCell;
+	berry.y = getRandomInt( 0, canvas.height / config.sizeCell ) * config.sizeCell;
+}
+
+/* 7. коллизия для границ, если змейка подошла к краю то должна
+ отображаться с другой стороны */
+function collisionBorder() {
+	/* проверка координа змейки, если выходят за 
+	границу канваса то меняем координаты */
+
+	/* если х координаты объекта змейка меньше нуля */
+	if (snake.x < 0) {
+		/* то тогда ее координаты станут ширина канваса вычесть размер ячеек в объекте конфиг */
+		snake.x = canvas.width - config.sizeCell;
+	} else if ( snake.x >= canvas.width ) { // а если х больше или равен канвас ширина
+		snake.x = 0;
+	}
+
+	if (snake.y < 0) {
+		snake.y = canvas.height - config.sizeCell;
+	} else if ( snake.y >= canvas.height ) {
+		snake.y = 0;
+	}
+}
+/* прописываем обнуление всех значеий */
+function refreshGame() {
+	score = 0;
+	drawScore();
+
+	snake.x = 160;
+	snake.y = 160;
+	snake.tails = [];
+	snake.maxTails = 3;
+	snake.dx = config.sizeCell;
+	snake.dy = 0;
+
+	randomPositionBerry();
+}
+
+
+
+
+/*  обработчик события в котором определяем какую клавишу нажали */
+document.addEventListener("keydown", function (e) {
+	/* проверяем екод который проверяет код клавиши */
+	/* после нажатия мы должны поменять направление у змейки учитывая что она 
+	движется постоянно мы меняем значение движения с ПОЛОЖИТЕЛЬНОГО на ОТРИЦАТЕЛЬНОЕ 
+	и наоборот в завиимсости от того, какую клавишу нажали. 
+	Помимо того что мы 	сменили направление, нам также нужно обнулить 
+	движение по горизонтали или вериткали
+	в зависимости от клавиши которую нажали */
+	if ( e.code == "KeyW" ) { 
+		snake.dy = -config.sizeCell;
+		snake.dx = 0;
+	} else if ( e.code == "KeyA" ) {
+		snake.dx = -config.sizeCell;
+		snake.dy = 0;
+	} else if ( e.code == "KeyS" ) {
+		snake.dy = config.sizeCell;
+		snake.dx = 0;
+	} else if ( e.code == "KeyD" ) {
+		snake.dx = config.sizeCell;
+		snake.dy = 0;
+	}
+});
+
