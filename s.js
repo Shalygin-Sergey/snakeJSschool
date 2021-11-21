@@ -11,7 +11,7 @@ const config = {
 
 	/* step, maxstep чтобы пропускать игровой цикл */
 	step: 0, // шаг
-	maxStep: 4, // максимальная скорость
+	maxStep: 8, // максимальная скорость
 
 	/* sizeCEll размер одной ячейки, а sizeBerry ягода которую будет кушать змейка */
 	sizeCell: 16, // размер ячейки
@@ -43,7 +43,7 @@ const snake = {
 let berry = {
 	x: 0,
 	y: 0
-} 
+}
 
 /* получаем поле канвас из ХТМЛ */
 let canvas = document.querySelector("#game-canvas");
@@ -56,6 +56,7 @@ scoreBlock = document.querySelector(".game-score .score-count");
 
 /* вставляем пустую функцию для рандомных значений у ягоды */
 drawScore();
+randomPositionBerry();
 
 /* =============================================================================== */
 
@@ -72,6 +73,7 @@ function gameLoop() {
 	/* очищаем канвас  */
 	context.clearRect(0, 0, canvas.width, canvas.height);
 	/* заново отрисовывем змейку и ягоду */
+	
 	drawBerry();
 	drawSnake();
 }
@@ -113,9 +115,9 @@ function drawSnake() {
 	проверяя на соприкосновение друг с другом и с ягодой */
 	snake.tails.forEach( function(el, index){
 		if (index == 0) {
-			context.fillStyle = "#FA0556"; /* красим красный */
+			context.fillStyle = "#c90234"; /* красим красный */
 		} else {
-			context.fillStyle = "#A00034"; /* остальное тело в тусклый */
+			context.fillStyle = "#ab02c9"; /* остальное тело в тусклый */
 		}
 		context.fillRect( el.x, el.y, config.sizeCell, config.sizeCell );
 
@@ -124,6 +126,17 @@ function drawSnake() {
 			snake.maxTails++; /* увеличиваем хваост на 1 */
 			incScore(); /* увеличиваем очки */
 			randomPositionBerry(); /* создаем новую ягоду */
+
+			/* Задаем условия роста скорости */
+			if( score === 10 ) {
+				config.maxStep = 7;
+			} else if ( score === 20 ) {
+				config.maxStep = 6;
+			} else if ( score === 30 ) {
+				config.maxStep = 5;
+			} else if ( score === 50 ) {
+				config.maxStep = 4;
+			}
 		}
 		/* нужно проверить змейку с хвостом ЕСЛИ совпало то заного запускаем игру */
 		for( let i = index + 1; i < snake.tails.length; i++ ) {
